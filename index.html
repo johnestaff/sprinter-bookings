@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verkada Bookings Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e14;--panel:#121821;--panel-2:#0e131b;--line:#1f2935;
+    --ink:#e8eef5;--muted:#7c8a9c;--accent:#00e08a;--accent-dim:#0a6e48;
+    --warn:#ffb547;--target:#3d7eff;--grid:#161d27;--danger:#ff5d6c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;-webkit-font-smoothing:antialiased;padding:28px 18px 80px;
+    background-image:radial-gradient(circle at 15% 0%,rgba(0,224,138,.06),transparent 40%),radial-gradient(circle at 85% 10%,rgba(61,126,255,.05),transparent 45%);}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{margin-bottom:22px}
+  .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+  h1{font-size:clamp(28px,5vw,46px);font-weight:900;letter-spacing:-.02em;line-height:1}
+  h1 span{color:var(--muted)}
+  .sub{color:var(--muted);margin-top:10px;font-size:14px;font-weight:500}
+  code{font-family:'Space Mono',monospace}
+
+  .statusbar{display:flex;align-items:center;gap:10px;margin:18px 0;font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .pill{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 13px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .dot.live{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .dot.ro{background:var(--warn)}
+  .spacer{flex:1}
+
+  .top{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin:18px 0}
+  @media(max-width:760px){.top{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .big-stat .label{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .big-stat .val{font-size:clamp(34px,6vw,56px);font-weight:900;letter-spacing:-.03em;margin-top:4px}
+  .big-stat .val small{font-size:.42em;color:var(--muted);font-weight:600;letter-spacing:0}
+  .bar-outer{height:16px;background:var(--panel-2);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:18px}
+  .bar-inner{height:100%;width:0;background:linear-gradient(90deg,var(--accent-dim),var(--accent));transition:width .5s cubic-bezier(.22,1,.36,1);border-radius:20px}
+  .meta-row{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+  .mini{display:flex;flex-direction:column;gap:14px;justify-content:center}
+  .mini .row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px dashed var(--line);padding-bottom:10px}
+  .mini .row:last-child{border-bottom:none}
+  .mini .k{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:.05em}
+  .mini .v{font-size:20px;font-weight:800}
+  .pace-ok{color:var(--accent)} .pace-behind{color:var(--warn)}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 16px;align-items:center}
+  .toggle{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .toggle button{background:none;border:none;color:var(--muted);font-family:'Archivo';font-weight:700;font-size:13px;padding:8px 16px;border-radius:7px;cursor:pointer;transition:.2s}
+  .toggle button.active{background:var(--accent);color:#04130c}
+  .btn{background:var(--panel);border:1px solid var(--line);color:var(--ink);font-family:'Archivo';font-weight:700;font-size:13px;padding:10px 16px;border-radius:10px;cursor:pointer;transition:.2s}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.primary{background:var(--accent);color:#04130c;border-color:var(--accent)}
+  .btn.primary:hover{background:#00f599}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .legend{display:flex;gap:18px;margin:6px 0 14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:7px}
+  .ldot{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+  .months{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .mrow{display:grid;grid-template-columns:120px 1fr 130px;gap:18px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--grid)}
+  .mrow:last-child{border-bottom:none}
+  .mrow.ramp{background:linear-gradient(90deg,rgba(255,181,71,.07),transparent)}
+  @media(max-width:680px){.mrow{grid-template-columns:1fr;gap:10px}}
+  .mname{font-weight:800;font-size:15px}
+  .mname .tag{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--warn);border:1px solid var(--warn);border-radius:4px;padding:2px 5px;margin-left:8px;vertical-align:middle}
+  .mname small{display:block;color:var(--muted);font-weight:500;font-size:11px;font-family:'Space Mono',monospace;margin-top:2px}
+  .track .barbg{height:26px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .track .fill{height:100%;width:0;border-radius:7px;transition:width .4s ease}
+  .track.actual .fill{background:linear-gradient(90deg,var(--accent-dim),var(--accent))}
+  .track.target .fill{background:linear-gradient(90deg,#1c3a73,var(--target))}
+  input[type=range]{width:100%;margin-top:10px;-webkit-appearance:none;background:transparent;cursor:pointer}
+  input[type=range]:disabled{cursor:not-allowed;opacity:.5}
+  input[type=range]::-webkit-slider-runnable-track{height:5px;background:var(--line);border-radius:4px}
+  input[type=range]::-moz-range-track{height:5px;background:var(--line);border-radius:4px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);margin-top:-7px;border:3px solid var(--bg);box-shadow:0 0 0 1px var(--accent)}
+  input[type=range].t::-webkit-slider-thumb{background:var(--target);box-shadow:0 0 0 1px var(--target)}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+  input[type=range].t::-moz-range-thumb{background:var(--target)}
+  .mval{text-align:right;font-family:'Space Mono',monospace}
+  .mval .big{font-size:18px;font-weight:700}
+  .mval .small{font-size:11px;color:var(--muted)}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(4,8,12,.78);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px;width:min(380px,92vw)}
+  .modal h2{font-size:20px;margin-bottom:6px}
+  .modal p{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .modal label{display:block;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;margin:12px 0 5px;text-transform:uppercase}
+  .modal input{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px;color:var(--ink);font-family:'Archivo';font-size:14px}
+  .modal input:focus{outline:none;border-color:var(--accent)}
+  .modal .err{color:var(--danger);font-size:12px;margin-top:10px;min-height:16px;font-family:'Space Mono',monospace}
+  .modal .actions{display:flex;gap:10px;margin-top:20px}
+  .modal .actions .btn{flex:1;justify-content:center;text-align:center}
+
+  .banner{background:#2a1a06;border:1px solid var(--warn);color:var(--warn);border-radius:12px;padding:14px 18px;margin-bottom:18px;font-size:13px;font-family:'Space Mono',monospace;display:none}
+  .banner.show{display:block}
+  footer{margin-top:24px;color:var(--muted);font-size:12px;line-height:1.7;font-family:'Space Mono',monospace}
+  footer code{background:var(--panel);padding:2px 7px;border-radius:5px;color:var(--accent);font-size:11px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent);color:#04130c;font-weight:800;padding:13px 22px;border-radius:12px;font-size:14px;opacity:0;transition:.35s;z-index:80}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+  .toast.bad{background:var(--danger);color:#fff}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Verkada · FY Apr 2026 – Mar 2027</div>
+    <h1>Bookings Tracker <span>/ $1M Goal</span></h1>
+    <div class="sub">Live shared progress. Anyone can view; sign in to edit actuals and targets.</div>
+  </header>
+
+  <div class="banner" id="cfgBanner">⚠ Supabase not configured yet — open <code>config.js</code> and add your project URL and anon key. Running in demo mode.</div>
+
+  <div class="statusbar">
+    <span class="pill"><span class="dot" id="connDot"></span><span id="connText">Connecting…</span></span>
+    <span class="pill"><span class="dot ro" id="roleDot"></span><span id="roleText">View only</span></span>
+    <span class="spacer"></span>
+    <button class="btn" id="authBtn">Sign in to edit</button>
+  </div>
+
+  <div class="top">
+    <div class="card big-stat">
+      <div class="label">Total Booked</div>
+      <div class="val" id="bookedVal">$0 <small>of $1,000,000</small></div>
+      <div class="bar-outer"><div class="bar-inner" id="totalBar"></div></div>
+      <div class="meta-row"><span id="pctVal">0.0% of goal</span><span id="remainVal">$1,000,000 remaining</span></div>
+    </div>
+    <div class="card mini">
+      <div class="row"><span class="k">Annual Goal</span><span class="v" id="kGoal">$1,000,000</span></div>
+      <div class="row"><span class="k">Target to date</span><span class="v" id="kTarget">$0</span></div>
+      <div class="row"><span class="k">Pace vs target</span><span class="v" id="kPace">—</span></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="toggle" id="mode">
+      <button data-m="actual" class="active">Log Actuals</button>
+      <button data-m="target">Adjust Targets</button>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><span class="ldot" style="background:var(--accent)"></span>Actual booked</span>
+    <span><span class="ldot" style="background:var(--target)"></span>Monthly target</span>
+    <span><span class="ldot" style="background:var(--warn)"></span>Ramp-up month</span>
+  </div>
+
+  <div class="months" id="months"></div>
+
+  <footer>
+    <strong style="color:var(--ink)">Live database:</strong> data is stored in Supabase Postgres.
+    Edits by signed-in users save instantly and sync to every open browser. See <code>SETUP.md</code> for the one-time setup.
+  </footer>
+</div>
+
+<div class="modal-bg" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">Sign in to edit</h2>
+    <p>Editing is restricted. Viewing stays open to everyone.</p>
+    <label>Email</label>
+    <input type="email" id="email" autocomplete="username" placeholder="you@verkada.com">
+    <label>Password</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="••••••••">
+    <div class="err" id="authErr"></div>
+    <div class="actions">
+      <button class="btn" id="authCancel">Cancel</button>
+      <button class="btn primary" id="authSubmit">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const GOAL = 1000000, SLIDER_MAX = 200000, STEP = 1000;
+const SEED = [
+  ["Apr 2026",30000,true],["May 2026",50000,true],["Jun 2026",70000,false],
+  ["Jul 2026",80000,false],["Aug 2026",85000,false],["Sep 2026",90000,false],
+  ["Oct 2026",95000,false],["Nov 2026",95000,false],["Dec 2026",90000,false],
+  ["Jan 2027",100000,false],["Feb 2027",105000,false],["Mar 2027",110000,false]
+];
+const $ = id => document.getElementById(id);
+const fmt = n => "$" + Math.round(n).toLocaleString();
+let toastT;
+function toast(msg,bad){const t=$("toast");t.textContent=msg;t.className="toast show"+(bad?" bad":"");clearTimeout(toastT);toastT=setTimeout(()=>t.className="toast",2800);}
+
+const cfg = window.SUPABASE_CONFIG || {};
+const configured = cfg.url && cfg.anonKey && !cfg.url.includes("YOUR_");
+let supabase = null, canEdit = false, mode = "actual";
+let rows = SEED.map((s,i)=>({id:i+1,name:s[0],target:s[1],actual:0,ramp:s[2],sort:i}));
+
+if(!configured){ $("cfgBanner").classList.add("show"); }
+else { supabase = createClient(cfg.url, cfg.anonKey); }
+
+function buildRows(){
+  const c = $("months"); c.innerHTML = "";
+  rows.forEach((m,i)=>{
+    const row = document.createElement("div");
+    row.className = "mrow" + (m.ramp ? " ramp" : "");
+    row.innerHTML = `
+      <div class="mname">${m.name}${m.ramp?'<span class="tag">RAMP</span>':''}<small>Mo ${i+1}</small></div>
+      <div class="track ${mode}">
+        <div class="barbg"><div class="fill" id="fill${i}"></div></div>
+        <input type="range" id="sl${i}" min="0" max="${SLIDER_MAX}" step="${STEP}"
+          class="${mode==='target'?'t':''}" value="${mode==='actual'?m.actual:m.target}" ${canEdit?'':'disabled'}>
+      </div>
+      <div class="mval"><div class="big" id="big${i}"></div><div class="small" id="small${i}"></div></div>`;
+    c.appendChild(row);
+    const sl = $("sl"+i);
+    sl.addEventListener("input", e=>{
+      const v=+e.target.value;
+      if(mode==="actual") rows[i].actual=v; else rows[i].target=v;
+      updateRow(i); updateTotals();
+    });
+    sl.addEventListener("change", e=>persist(rows[i], +e.target.value));
+  });
+}
+function updateRow(i){
+  const m=rows[i];
+  const pct=m.target>0?Math.min(100,(m.actual/m.target)*100):0;
+  $("fill"+i).style.width=(mode==="actual"?pct:Math.min(100,m.target/SLIDER_MAX*100))+"%";
+  if(mode==="actual"){$("big"+i).textContent=fmt(m.actual);
+    $("small"+i).innerHTML=`of ${fmt(m.target)} · <span style="color:${pct>=100?'var(--accent)':'var(--muted)'}">${pct.toFixed(0)}%</span>`;}
+  else{$("big"+i).textContent=fmt(m.target);$("small"+i).textContent="target";}
+}
+function updateTotals(){
+  const booked=rows.reduce((s,m)=>s+m.actual,0);
+  const tt=rows.reduce((s,m)=>s+m.target,0);
+  const pct=(booked/GOAL)*100;
+  $("bookedVal").innerHTML=`${fmt(booked)} <small>of ${fmt(GOAL)}</small>`;
+  $("totalBar").style.width=Math.min(100,pct)+"%";
+  $("pctVal").textContent=pct.toFixed(1)+"% of goal";
+  $("remainVal").textContent=fmt(Math.max(0,GOAL-booked))+" remaining";
+  $("kGoal").textContent=fmt(GOAL);
+  $("kTarget").textContent=fmt(tt);
+  const diff=booked-tt,pe=$("kPace");
+  pe.textContent=(diff>=0?"+":"")+fmt(diff);
+  pe.className="v "+(diff>=0?"pace-ok":"pace-behind");
+}
+function render(){buildRows();rows.forEach((_,i)=>updateRow(i));updateTotals();}
+
+async function persist(monthRow, value){
+  if(!canEdit||!supabase) return;
+  const col = mode==="actual" ? "actual" : "target";
+  const { error } = await supabase.from("bookings").update({[col]:value}).eq("id",monthRow.id);
+  if(error) toast("Save failed: "+error.message,true); else toast("Saved");
+}
+
+async function loadData(){
+  if(!supabase){ render(); return; }
+  const { data, error } = await supabase.from("bookings").select("*").order("sort");
+  if(error){ toast("Load failed: "+error.message,true); render(); return; }
+  if(data && data.length){ rows = data.map(d=>({...d})); }
+  render();
+}
+
+function setConn(){
+  const d=$("connDot"),t=$("connText");
+  d.className="dot live"; t.textContent=configured?"Live · synced":"Demo mode";
+}
+function setRole(){
+  $("roleDot").className="dot "+(canEdit?"live":"ro");
+  $("roleText").textContent=canEdit?"Editing enabled":"View only";
+  $("authBtn").textContent=canEdit?"Sign out":"Sign in to edit";
+  document.querySelectorAll('input[type=range]').forEach(s=>s.disabled=!canEdit);
+}
+
+function subscribe(){
+  if(!supabase) return;
+  supabase.channel("bookings-rt")
+    .on("postgres_changes",{event:"*",schema:"public",table:"bookings"},payload=>{
+      const r=payload.new; if(!r) return;
+      const i=rows.findIndex(x=>x.id===r.id);
+      if(i>=0){ rows[i]={...rows[i],...r};
+        const sl=$("sl"+i); if(sl && document.activeElement!==sl) sl.value=mode==="actual"?rows[i].actual:rows[i].target;
+        updateRow(i); updateTotals(); }
+    }).subscribe();
+}
+
+$("authBtn").addEventListener("click", async ()=>{
+  if(canEdit){ await supabase.auth.signOut(); return; }
+  if(!configured){ toast("Configure Supabase first (config.js)",true); return; }
+  $("authModal").classList.add("show"); $("email").focus();
+});
+$("authCancel").addEventListener("click",()=>{$("authModal").classList.remove("show");$("authErr").textContent="";});
+$("authSubmit").addEventListener("click", async ()=>{
+  const email=$("email").value.trim(), password=$("password").value;
+  if(!email||!password){ $("authErr").textContent="Enter email and password."; return; }
+  const { error } = await supabase.auth.signInWithPassword({email,password});
+  if(error){ $("authErr").textContent=error.message; }
+  else{ $("authModal").classList.remove("show"); $("authErr").textContent=""; $("password").value=""; toast("Signed in — editing enabled"); }
+});
+
+if(supabase){
+  supabase.auth.onAuthStateChange((_e,session)=>{ canEdit=!!session; setRole(); buildRows(); rows.forEach((_,i)=>updateRow(i)); });
+}
+
+document.querySelectorAll("#mode button").forEach(b=>{
+  b.addEventListener("click",()=>{
+    document.querySelectorAll("#mode button").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active"); mode=b.dataset.m; render();
+  });
+});
+
+(async function init(){
+  await loadData();
+  setConn(); setRole();
+  subscribe();
+})();
+</script>
+</body>
+</html>
