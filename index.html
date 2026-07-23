@@ -73,6 +73,13 @@
   .track .fill{height:100%;width:0;border-radius:7px;transition:width .4s ease}
   .track.actual .fill{background:linear-gradient(90deg,var(--accent-dim),var(--accent))}
   .track.target .fill{background:linear-gradient(90deg,#1c3a73,var(--target))}
+  .track .fill.neg{background:linear-gradient(90deg,#7a1f28,var(--danger))!important;margin-left:auto}
+  .barbg.negwrap{display:flex}
+  .mrow.negative{background:linear-gradient(90deg,rgba(255,93,108,.09),transparent)}
+  .mname .tag.neg{color:var(--danger);border-color:var(--danger)}
+  .neg-txt{color:var(--danger)}
+  input[type=range].n::-webkit-slider-thumb{background:var(--danger);box-shadow:0 0 0 1px var(--danger)}
+  input[type=range].n::-moz-range-thumb{background:var(--danger)}
   input[type=range]{width:100%;margin-top:10px;-webkit-appearance:none;background:transparent;cursor:pointer}
   input[type=range]:disabled{cursor:not-allowed;opacity:.5}
   input[type=range]::-webkit-slider-runnable-track{height:5px;background:var(--line);border-radius:4px}
@@ -134,6 +141,7 @@
       <div class="row"><span class="k">Annual Goal</span><span class="v" id="kGoal">$1,000,000</span></div>
       <div class="row"><span class="k">Target to date</span><span class="v" id="kTarget">$0</span></div>
       <div class="row"><span class="k">Pace vs target</span><span class="v" id="kPace">—</span></div>
+      <div class="row"><span class="k">Negative months</span><span class="v" id="kNeg">0</span></div>
     </div>
   </div>
 
@@ -148,6 +156,7 @@
     <span><span class="ldot" style="background:var(--accent)"></span>Actual booked</span>
     <span><span class="ldot" style="background:var(--target)"></span>Monthly target</span>
     <span><span class="ldot" style="background:var(--warn)"></span>Ramp-up month</span>
+    <span><span class="ldot" style="background:var(--danger)"></span>Negative month (churn / clawback)</span>
   </div>
 
   <div class="months" id="months"></div>
@@ -180,7 +189,7 @@
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const GOAL = 1000000, SLIDER_MAX = 200000, STEP = 1000;
+const GOAL = 1000000, SLIDER_MAX = 200000, SLIDER_MIN = -100000, STEP = 1000;
 const SEED = [
   ["Apr 2026",30000,true],["May 2026",50000,true],["Jun 2026",70000,false],
   ["Jul 2026",80000,false],["Aug 2026",85000,false],["Sep 2026",90000,false],
@@ -188,7 +197,7 @@ const SEED = [
   ["Jan 2027",100000,false],["Feb 2027",105000,false],["Mar 2027",110000,false]
 ];
 const $ = id => document.getElementById(id);
-const fmt = n => "$" + Math.round(n).toLocaleString();
+const fmt = n => (n<0?"-$":"$") + Math.abs(Math.round(n)).toLocaleString();
 let toastT;
 function toast(msg,bad){const t=$("toast");t.textContent=msg;t.className="toast show"+(bad?" bad":"");clearTimeout(toastT);toastT=setTimeout(()=>t.className="toast",2800);}
 
@@ -204,12 +213,13 @@ function buildRows(){
   const c = $("months"); c.innerHTML = "";
   rows.forEach((m,i)=>{
     const row = document.createElement("div");
-    row.className = "mrow" + (m.ramp ? " ramp" : "");
+    row.className = "mrow" + (m.ramp ? " ramp" : "") + (m.actual < 0 ? " negative" : "");
+    row.id = "row"+i;
     row.innerHTML = `
-      <div class="mname">${m.name}${m.ramp?'<span class="tag">RAMP</span>':''}<small>Mo ${i+1}</small></div>
+      <div class="mname">${m.name}${m.ramp?'<span class="tag">RAMP</span>':''}<span class="tag neg" id="negtag${i}" style="display:none">NEG</span><small>Mo ${i+1}</small></div>
       <div class="track ${mode}">
-        <div class="barbg"><div class="fill" id="fill${i}"></div></div>
-        <input type="range" id="sl${i}" min="0" max="${SLIDER_MAX}" step="${STEP}"
+        <div class="barbg" id="bg${i}"><div class="fill" id="fill${i}"></div></div>
+        <input type="range" id="sl${i}" min="${mode==='actual'?SLIDER_MIN:0}" max="${SLIDER_MAX}" step="${STEP}"
           class="${mode==='target'?'t':''}" value="${mode==='actual'?m.actual:m.target}" ${canEdit?'':'disabled'}>
       </div>
       <div class="mval"><div class="big" id="big${i}"></div><div class="small" id="small${i}"></div></div>`;
@@ -224,19 +234,41 @@ function buildRows(){
   });
 }
 function updateRow(i){
-  const m=rows[i];
-  const pct=m.target>0?Math.min(100,(m.actual/m.target)*100):0;
-  $("fill"+i).style.width=(mode==="actual"?pct:Math.min(100,m.target/SLIDER_MAX*100))+"%";
-  if(mode==="actual"){$("big"+i).textContent=fmt(m.actual);
-    $("small"+i).innerHTML=`of ${fmt(m.target)} · <span style="color:${pct>=100?'var(--accent)':'var(--muted)'}">${pct.toFixed(0)}%</span>`;}
-  else{$("big"+i).textContent=fmt(m.target);$("small"+i).textContent="target";}
+  const m=rows[i], neg=m.actual<0;
+  const fill=$("fill"+i), bg=$("bg"+i), row=$("row"+i), tag=$("negtag"+i);
+  const pct=m.target>0?(m.actual/m.target)*100:0;
+
+  if(mode==="actual"){
+    fill.classList.toggle("neg",neg);
+    bg.classList.toggle("negwrap",neg);
+    row.classList.toggle("negative",neg);
+    if(tag) tag.style.display=neg?"inline-block":"none";
+    // negative bars are scaled against the negative end of the slider range
+    fill.style.width=(neg
+      ? Math.min(100,(Math.abs(m.actual)/Math.abs(SLIDER_MIN))*100)
+      : Math.min(100,Math.max(0,pct)))+"%";
+    $("big"+i).textContent=fmt(m.actual);
+    $("big"+i).className="big"+(neg?" neg-txt":"");
+    const col = neg?'var(--danger)':(pct>=100?'var(--accent)':'var(--muted)');
+    $("small"+i).innerHTML=`of ${fmt(m.target)} · <span style="color:${col}">${pct.toFixed(0)}%</span>`;
+  } else {
+    fill.classList.remove("neg"); bg.classList.remove("negwrap");
+    if(tag) tag.style.display="none";
+    fill.style.width=Math.min(100,m.target/SLIDER_MAX*100)+"%";
+    $("big"+i).textContent=fmt(m.target); $("big"+i).className="big";
+    $("small"+i).textContent="target";
+  }
 }
 function updateTotals(){
   const booked=rows.reduce((s,m)=>s+m.actual,0);
   const tt=rows.reduce((s,m)=>s+m.target,0);
   const pct=(booked/GOAL)*100;
+  const negRows=rows.filter(m=>m.actual<0);
+  const negSum=negRows.reduce((s,m)=>s+m.actual,0);
+
   $("bookedVal").innerHTML=`${fmt(booked)} <small>of ${fmt(GOAL)}</small>`;
-  $("totalBar").style.width=Math.min(100,pct)+"%";
+  $("bookedVal").className="val"+(booked<0?" neg-txt":"");
+  $("totalBar").style.width=Math.max(0,Math.min(100,pct))+"%";
   $("pctVal").textContent=pct.toFixed(1)+"% of goal";
   $("remainVal").textContent=fmt(Math.max(0,GOAL-booked))+" remaining";
   $("kGoal").textContent=fmt(GOAL);
@@ -244,6 +276,15 @@ function updateTotals(){
   const diff=booked-tt,pe=$("kPace");
   pe.textContent=(diff>=0?"+":"")+fmt(diff);
   pe.className="v "+(diff>=0?"pace-ok":"pace-behind");
+
+  const ne=$("kNeg");
+  if(negRows.length){
+    ne.innerHTML=`${negRows.length} <span style="font-size:12px;font-weight:600">(${fmt(negSum)})</span>`;
+    ne.className="v neg-txt";
+    ne.title=negRows.map(m=>`${m.name}: ${fmt(m.actual)}`).join("\n");
+  } else {
+    ne.textContent="0"; ne.className="v"; ne.title="";
+  }
 }
 function render(){buildRows();rows.forEach((_,i)=>updateRow(i));updateTotals();}
 
