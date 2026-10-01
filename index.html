@@ -69,17 +69,10 @@
   .mname{font-weight:800;font-size:15px}
   .mname .tag{display:inline-block;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--warn);border:1px solid var(--warn);border-radius:4px;padding:2px 5px;margin-left:8px;vertical-align:middle}
   .mname small{display:block;color:var(--muted);font-weight:500;font-size:11px;font-family:'Space Mono',monospace;margin-top:2px}
-  .track .barbg{height:26px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .track .barbg{height:26px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
   .track .fill{height:100%;width:0;border-radius:7px;transition:width .4s ease}
   .track.actual .fill{background:linear-gradient(90deg,var(--accent-dim),var(--accent))}
   .track.target .fill{background:linear-gradient(90deg,#1c3a73,var(--target))}
-  .track .fill.neg{background:linear-gradient(90deg,#7a1f28,var(--danger))!important;margin-left:auto}
-  .barbg.negwrap{display:flex}
-  .mrow.negative{background:linear-gradient(90deg,rgba(255,93,108,.09),transparent)}
-  .mname .tag.neg{color:var(--danger);border-color:var(--danger)}
-  .neg-txt{color:var(--danger)}
-  input[type=range].n::-webkit-slider-thumb{background:var(--danger);box-shadow:0 0 0 1px var(--danger)}
-  input[type=range].n::-moz-range-thumb{background:var(--danger)}
   input[type=range]{width:100%;margin-top:10px;-webkit-appearance:none;background:transparent;cursor:pointer}
   input[type=range]:disabled{cursor:not-allowed;opacity:.5}
   input[type=range]::-webkit-slider-runnable-track{height:5px;background:var(--line);border-radius:4px}
@@ -111,6 +104,62 @@
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--accent);color:#04130c;font-weight:800;padding:13px 22px;border-radius:12px;font-size:14px;opacity:0;transition:.35s;z-index:80}
   .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
   .toast.bad{background:var(--danger);color:#fff}
+
+  /* negative months */
+  .track .fill.neg{background:linear-gradient(90deg,#7a1f28,var(--danger))!important;margin-left:auto}
+  .barbg.negwrap{display:flex}
+  .mrow.negative{background:linear-gradient(90deg,rgba(255,93,108,.09),transparent)}
+  .mname .tag.neg{color:var(--danger);border-color:var(--danger)}
+  .neg-txt{color:var(--danger)}
+  input[type=range].n::-webkit-slider-thumb{background:var(--danger);box-shadow:0 0 0 1px var(--danger)}
+  input[type=range].n::-moz-range-thumb{background:var(--danger)}
+
+  /* tabs */
+  .tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px;margin:18px 0 4px}
+  .tabs button{flex:1;background:none;border:none;color:var(--muted);font-family:'Archivo';font-weight:800;font-size:14px;padding:11px 16px;border-radius:9px;cursor:pointer;transition:.2s;letter-spacing:-.01em}
+  .tabs button.active{background:var(--accent);color:#04130c}
+  .tab-pane{display:none}
+  .tab-pane.active{display:block}
+
+  /* pipeline */
+  .uploadzone{border:1.5px dashed var(--line);border-radius:14px;padding:26px;text-align:center;background:var(--panel-2);transition:.2s;cursor:pointer}
+  .uploadzone:hover,.uploadzone.drag{border-color:var(--accent);background:rgba(0,224,138,.04)}
+  .uploadzone .big{font-weight:800;font-size:15px;margin-bottom:6px}
+  .uploadzone .small{color:var(--muted);font-size:12px;font-family:'Space Mono',monospace}
+  .asof{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin:14px 2px 6px;letter-spacing:.05em}
+  .pipe-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0}
+  @media(max-width:680px){.pipe-stats{grid-template-columns:repeat(2,1fr)}}
+  .pstat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .pstat .label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .pstat .val{font-size:24px;font-weight:900;letter-spacing:-.02em;margin-top:5px}
+  .pstat .val.accent{color:var(--accent)} .pstat .val.blue{color:var(--target)}
+  .stage-bars{display:flex;flex-direction:column;gap:9px;margin:4px 0 8px}
+  .sbar{display:grid;grid-template-columns:110px 1fr 150px;gap:14px;align-items:center;font-size:13px}
+  @media(max-width:680px){.sbar{grid-template-columns:90px 1fr;gap:8px}.sbar .samt{grid-column:1/-1;text-align:left}}
+  .sbar .sname{font-weight:700}
+  .sbar .sbg{height:22px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .sbar .sfill{height:100%;border-radius:6px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+  .sbar .samt{text-align:right;font-family:'Space Mono',monospace;font-size:12px}
+  .sbar .samt b{color:var(--ink)} .sbar .samt span{color:var(--muted)}
+  .ptable-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:14px}
+  .ptable-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--grid);flex-wrap:wrap;gap:10px}
+  .ptable-head .t{font-weight:800;font-size:15px}
+  .psearch{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink);font-family:'Archivo';font-size:13px;min-width:180px}
+  .psearch:focus{outline:none;border-color:var(--accent)}
+  table.ptable{width:100%;border-collapse:collapse;font-size:13px}
+  table.ptable th{text-align:left;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--grid);cursor:pointer;white-space:nowrap;user-select:none}
+  table.ptable th:hover{color:var(--accent)}
+  table.ptable th.num,table.ptable td.num{text-align:right}
+  table.ptable td{padding:11px 14px;border-bottom:1px solid var(--grid)}
+  table.ptable tr:last-child td{border-bottom:none}
+  table.ptable tbody tr:hover{background:var(--panel-2)}
+  .acct{font-weight:700}
+  .acct small{display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:2px}
+  .stagechip{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;letter-spacing:.05em;padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .pipe-foot{padding:13px 18px;border-top:1px solid var(--grid);display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:8px}
+  .pipe-foot b{color:var(--ink)}
+  .forecast-note{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6}
+  .fc-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -130,6 +179,14 @@
     <button class="btn" id="authBtn">Sign in to edit</button>
   </div>
 
+  <div class="tabs" id="tabs">
+    <button data-tab="bookings" class="active">Bookings</button>
+    <button data-tab="pipeline">Open Pipeline</button>
+  </div>
+
+  <!-- ================= BOOKINGS TAB ================= -->
+  <div class="tab-pane active" id="tab-bookings">
+
   <div class="top">
     <div class="card big-stat">
       <div class="label">Total Booked</div>
@@ -142,6 +199,7 @@
       <div class="row"><span class="k">Target to date</span><span class="v" id="kTarget">$0</span></div>
       <div class="row"><span class="k">Pace vs target</span><span class="v" id="kPace">—</span></div>
       <div class="row"><span class="k">Negative months</span><span class="v" id="kNeg">0</span></div>
+      <div class="row"><span class="k">Weighted pipe (forecast)</span><span class="v" id="kPipe" style="color:var(--target)">—</span></div>
     </div>
   </div>
 
@@ -157,6 +215,7 @@
     <span><span class="ldot" style="background:var(--target)"></span>Monthly target</span>
     <span><span class="ldot" style="background:var(--warn)"></span>Ramp-up month</span>
     <span><span class="ldot" style="background:var(--danger)"></span>Negative month (churn / clawback)</span>
+    <span><span class="ldot" style="background:var(--target);opacity:.5"></span>Weighted pipeline (forecast overlay)</span>
   </div>
 
   <div class="months" id="months"></div>
@@ -165,6 +224,57 @@
     <strong style="color:var(--ink)">Live database:</strong> data is stored in Supabase Postgres.
     Edits by signed-in users save instantly and sync to every open browser. See <code>SETUP.md</code> for the one-time setup.
   </footer>
+
+  </div><!-- /tab-bookings -->
+
+  <!-- ================= PIPELINE TAB ================= -->
+  <div class="tab-pane" id="tab-pipeline">
+
+    <div class="uploadzone" id="dropzone">
+      <div class="big">⬆ Drop this month's pipeline export here</div>
+      <div class="small">or click to choose the Sprinter open-pipe .xlsx &nbsp;·&nbsp; data stays in your browser</div>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
+    </div>
+    <div class="asof" id="pipeAsOf"></div>
+
+    <div class="pipe-stats">
+      <div class="pstat"><div class="label">Open Pipeline</div><div class="val accent" id="psTotal">$0</div></div>
+      <div class="pstat"><div class="label">Weighted Forecast</div><div class="val blue" id="psWeighted">$0</div></div>
+      <div class="pstat"><div class="label">Open Deals</div><div class="val" id="psCount">0</div></div>
+      <div class="pstat"><div class="label">Avg Deal Size</div><div class="val" id="psAvg">$0</div></div>
+    </div>
+
+    <div class="card" style="margin:14px 0">
+      <div class="label" style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Pipeline by stage</div>
+      <div class="stage-bars" id="stageBars"></div>
+      <div class="forecast-note" id="probNote"></div>
+    </div>
+
+    <div class="ptable-wrap">
+      <div class="ptable-head">
+        <span class="t">Open opportunities</span>
+        <input class="psearch" id="pipeSearch" placeholder="Filter account / owner / stage…">
+      </div>
+      <div style="overflow-x:auto">
+        <table class="ptable" id="pipeTable">
+          <thead><tr>
+            <th data-sort="account">Account</th>
+            <th data-sort="stage">Stage</th>
+            <th data-sort="close">Close</th>
+            <th data-sort="owner">Owner</th>
+            <th data-sort="amount" class="num">Amount</th>
+            <th data-sort="weighted" class="num">Weighted</th>
+          </tr></thead>
+          <tbody id="pipeBody"></tbody>
+        </table>
+      </div>
+      <div class="pipe-foot">
+        <span id="pipeShowing">0 deals</span>
+        <span>Raw <b id="pipeRaw">$0</b> &nbsp;·&nbsp; Weighted <b id="pipeWtd">$0</b></span>
+      </div>
+    </div>
+
+  </div><!-- /tab-pipeline -->
 </div>
 
 <div class="modal-bg" id="authModal">
@@ -186,6 +296,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -198,6 +309,7 @@ const SEED = [
 ];
 const $ = id => document.getElementById(id);
 const fmt = n => (n<0?"-$":"$") + Math.abs(Math.round(n)).toLocaleString();
+const fmtK = n => (n<0?"-$":"$") + Math.round(Math.abs(n)/1000) + "k";
 let toastT;
 function toast(msg,bad){const t=$("toast");t.textContent=msg;t.className="toast show"+(bad?" bad":"");clearTimeout(toastT);toastT=setTimeout(()=>t.className="toast",2800);}
 
@@ -213,12 +325,12 @@ function buildRows(){
   const c = $("months"); c.innerHTML = "";
   rows.forEach((m,i)=>{
     const row = document.createElement("div");
-    row.className = "mrow" + (m.ramp ? " ramp" : "") + (m.actual < 0 ? " negative" : "");
+    row.className = "mrow" + (m.ramp ? " ramp" : "") + (m.actual<0 ? " negative" : "");
     row.id = "row"+i;
     row.innerHTML = `
       <div class="mname">${m.name}${m.ramp?'<span class="tag">RAMP</span>':''}<span class="tag neg" id="negtag${i}" style="display:none">NEG</span><small>Mo ${i+1}</small></div>
       <div class="track ${mode}">
-        <div class="barbg" id="bg${i}"><div class="fill" id="fill${i}"></div></div>
+        <div class="barbg" id="bg${i}"><div class="fill" id="fill${i}"></div><div class="fcmark" id="fc${i}" style="display:none;position:absolute;top:0;bottom:0;width:3px;background:var(--target);box-shadow:0 0 6px var(--target)"></div></div>
         <input type="range" id="sl${i}" min="${mode==='actual'?SLIDER_MIN:0}" max="${SLIDER_MAX}" step="${STEP}"
           class="${mode==='target'?'t':''}" value="${mode==='actual'?m.actual:m.target}" ${canEdit?'':'disabled'}>
       </div>
@@ -235,25 +347,33 @@ function buildRows(){
 }
 function updateRow(i){
   const m=rows[i], neg=m.actual<0;
-  const fill=$("fill"+i), bg=$("bg"+i), row=$("row"+i), tag=$("negtag"+i);
+  const fill=$("fill"+i), bg=$("bg"+i), row=$("row"+i), tag=$("negtag"+i), sl=$("sl"+i);
   const pct=m.target>0?(m.actual/m.target)*100:0;
-
+  if(sl) sl.classList.toggle("n", mode==="actual" && neg);
   if(mode==="actual"){
-    fill.classList.toggle("neg",neg);
-    bg.classList.toggle("negwrap",neg);
-    row.classList.toggle("negative",neg);
+    fill.classList.toggle("neg",neg); bg.classList.toggle("negwrap",neg);
+    if(row) row.classList.toggle("negative",neg);
     if(tag) tag.style.display=neg?"inline-block":"none";
-    // negative bars are scaled against the negative end of the slider range
     fill.style.width=(neg
       ? Math.min(100,(Math.abs(m.actual)/Math.abs(SLIDER_MIN))*100)
       : Math.min(100,Math.max(0,pct)))+"%";
     $("big"+i).textContent=fmt(m.actual);
     $("big"+i).className="big"+(neg?" neg-txt":"");
-    const col = neg?'var(--danger)':(pct>=100?'var(--accent)':'var(--muted)');
+    const col=neg?'var(--danger)':(pct>=100?'var(--accent)':'var(--muted)');
     $("small"+i).innerHTML=`of ${fmt(m.target)} · <span style="color:${col}">${pct.toFixed(0)}%</span>`;
+    // weighted-pipeline forecast marker (actuals mode only)
+    const fc=$("fc"+i), pw=(window.PIPE_BY_MONTH||{})[m.name]||0;
+    if(fc){
+      if(pw>0 && m.target>0){
+        const projPct=Math.min(100,(pw/m.target)*100);
+        fc.style.left=`calc(${projPct}% - 1px)`; fc.style.display="block";
+        fc.title=`Weighted pipeline closing ${m.name}: ${fmt(pw)} (${projPct.toFixed(0)}% of target)`;
+      } else fc.style.display="none";
+    }
   } else {
     fill.classList.remove("neg"); bg.classList.remove("negwrap");
     if(tag) tag.style.display="none";
+    const fc=$("fc"+i); if(fc) fc.style.display="none";
     fill.style.width=Math.min(100,m.target/SLIDER_MAX*100)+"%";
     $("big"+i).textContent=fmt(m.target); $("big"+i).className="big";
     $("small"+i).textContent="target";
@@ -263,9 +383,6 @@ function updateTotals(){
   const booked=rows.reduce((s,m)=>s+m.actual,0);
   const tt=rows.reduce((s,m)=>s+m.target,0);
   const pct=(booked/GOAL)*100;
-  const negRows=rows.filter(m=>m.actual<0);
-  const negSum=negRows.reduce((s,m)=>s+m.actual,0);
-
   $("bookedVal").innerHTML=`${fmt(booked)} <small>of ${fmt(GOAL)}</small>`;
   $("bookedVal").className="val"+(booked<0?" neg-txt":"");
   $("totalBar").style.width=Math.max(0,Math.min(100,pct))+"%";
@@ -277,14 +394,11 @@ function updateTotals(){
   pe.textContent=(diff>=0?"+":"")+fmt(diff);
   pe.className="v "+(diff>=0?"pace-ok":"pace-behind");
 
-  const ne=$("kNeg");
+  const negRows=rows.filter(m=>m.actual<0), negSum=negRows.reduce((s,m)=>s+m.actual,0), ne=$("kNeg");
   if(negRows.length){
     ne.innerHTML=`${negRows.length} <span style="font-size:12px;font-weight:600">(${fmt(negSum)})</span>`;
-    ne.className="v neg-txt";
-    ne.title=negRows.map(m=>`${m.name}: ${fmt(m.actual)}`).join("\n");
-  } else {
-    ne.textContent="0"; ne.className="v"; ne.title="";
-  }
+    ne.className="v neg-txt"; ne.title=negRows.map(m=>`${m.name}: ${fmt(m.actual)}`).join("\n");
+  } else { ne.textContent="0"; ne.className="v"; ne.title=""; }
 }
 function render(){buildRows();rows.forEach((_,i)=>updateRow(i));updateTotals();}
 
@@ -351,10 +465,213 @@ document.querySelectorAll("#mode button").forEach(b=>{
   });
 });
 
+
+/* ================= OPEN PIPELINE ENGINE ================= */
+const SEED_PIPE = {"asOf":"2026-10-01","source":"Sprinter open pipe report","rows":[{"stage":"Validation","account":"Fincantieri Bay Shipbuilding","desc":"Signal Conversion - Guest & Cams","amount":30000,"close":"1/29/2027","owner":"Eric Durrant","dealType":""},{"stage":"Validation","account":"Great Lakes Indian Fish and Wildlife Commission","desc":"Remote Deployment","amount":25000,"close":"1/31/2027","owner":"Coleman Margetts","dealType":""},{"stage":"Validation","account":"Powertex Group","desc":"Signal Conversion","amount":25000,"close":"2/1/2027","owner":"Coleman Margetts","dealType":""},{"stage":"Validation","account":"Didion","desc":"badge readers & guest","amount":25000,"close":"10/21/2026","owner":"Maeve Griffin","dealType":""},{"stage":"Validation","account":"Gorman & Company","desc":"cams & alarms for manitowoc","amount":25000,"close":"11/3/2026","owner":"Maeve Griffin","dealType":""},{"stage":"Validation","account":"Washburn County Jail (WI)","desc":"Camera add to jail (10 cams)","amount":24687,"close":"2/1/2027","owner":"Sonja Wessel","dealType":""},{"stage":"Validation","account":"WI-County-Walworth","desc":"Judicial Center Remodel","amount":20000,"close":"1/28/2027","owner":"Colton Bennion","dealType":""},{"stage":"Validation","account":"His House of Hope","desc":"Cams and AC","amount":17769.6,"close":"1/29/2027","owner":"Coleman Margetts","dealType":""},{"stage":"Validation","account":"Thermal Plastic Design, Inc.","desc":"Cams and AC","amount":11365.9,"close":"10/30/2026","owner":"Coleman Margetts","dealType":""},{"stage":"Validation","account":"Park View Community Campus","desc":"Access Control and Intercoms","amount":10658.16,"close":"10/30/2026","owner":"Coleman Margetts","dealType":""},{"stage":"Validation","account":"National Veterinary Associates","desc":"NVA Add On","amount":425.79,"close":"1/15/2027","owner":"Skyler Munatones","dealType":""},{"stage":"Validation","account":11,"desc":"","amount":0,"close":"","owner":"","dealType":""},{"stage":"Qualified","account":"WI-Municipality-Stevens Point","desc":"Bethany Dowling - WI-Municipality-Stevens Point - City Hall RFP","amount":280077.9,"close":"12/30/2026","owner":"Emily Harker","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"Skana Aluminum Company","desc":"Mike Newsome - Skana Aluminum Company - Value","amount":81792.45,"close":"1/29/2027","owner":"Eric Durrant","dealType":"Partner Value Deal Protection"},{"stage":"Qualified","account":"Mountain Bay Metro Police Department, WI","desc":"Mountain Bay Metro PD- RFP","amount":50000,"close":"4/30/2027","owner":"Emily Harker","dealType":""},{"stage":"Qualified","account":"John Michael Kohler Arts Center","desc":"Cams Project","amount":35000,"close":"12/31/2026","owner":"Maeve Griffin","dealType":""},{"stage":"Qualified","account":"Midwestern Wheels Inc","desc":"Camera POC","amount":25000,"close":"3/26/2027","owner":"Eric Durrant","dealType":""},{"stage":"Qualified","account":"The Vollrath Company","desc":"Vollrath opp","amount":25000,"close":"11/30/2026","owner":"Maeve Griffin","dealType":""},{"stage":"Qualified","account":"Schmit Prototypes","desc":"Access Control and Cameras","amount":25000,"close":"1/29/2027","owner":"Coleman Margetts","dealType":""},{"stage":"Qualified","account":"Skana Aluminum Company","desc":"Skana Aluminum - WV","amount":23893.15,"close":"1/29/2027","owner":"Eric Durrant","dealType":"Partner Value Deal Protection"},{"stage":"Qualified","account":"Our Cabintery","desc":"Wes Barker - Our Cabintery - Sourced","amount":20714.37,"close":"11/30/2026","owner":"Greg DiPippo","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"RB Royal Industries","desc":"RB Royal - Phase 1 - Exterior Cams","amount":19943.2,"close":"3/26/2027","owner":"Eric Durrant","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"Hygienic Fabrics & Filters","desc":"HyFab cams& ac","amount":15942.8,"close":"12/3/2026","owner":"Maeve Griffin","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"IL-Municipality-Roscoe","desc":"Riverside Park | Citywide CAMs","amount":12062.25,"close":"1/22/2027","owner":"Tanner Danielson","dealType":""},{"stage":"Qualified","account":"Jagemann Plating","desc":"Evan Jagemann - Jagemann Plating - Sourced","amount":11068.2,"close":"1/29/2027","owner":"Eric Durrant","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"Midwest Tops Inc","desc":"Matt Wallace - Midwest Tops Inc - Sourced","amount":10000,"close":"12/14/2026","owner":"Joshua Sternlight","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"IL-Municipality-Roscoe","desc":"Public Works | Citywide CAMs","amount":7282.82,"close":"1/22/2027","owner":"Tanner Danielson","dealType":""},{"stage":"Qualified","account":"WI-County-Walworth","desc":"DPW site- Remote Cameras","amount":5558.8,"close":"1/28/2027","owner":"Colton Bennion","dealType":""},{"stage":"Qualified","account":"IL-Municipality-Roscoe","desc":"Leland Park | Citywide CAMs","amount":5467.92,"close":"1/22/2027","owner":"Tanner Danielson","dealType":""},{"stage":"Qualified","account":"National Veterinary Associates","desc":"NVA 1200 Brentwood Renewal","amount":5054.76,"close":"2/26/2027","owner":"Skyler Munatones","dealType":""},{"stage":"Qualified","account":"IL-Municipality-Roscoe","desc":"Porter Park | Citywide CAMs","amount":4577.19,"close":"1/22/2027","owner":"Tanner Danielson","dealType":""},{"stage":"Qualified","account":"WI-Municipality-Shullsburg","desc":"Janelle Schumacher - WI-Municipality-Shullsburg - Sourced","amount":4225.65,"close":"12/15/2026","owner":"Jacob Walker","dealType":"Partner Sourced Deal Registration"},{"stage":"Qualified","account":"Boston FAM","desc":"Entryway Camera","amount":1201.2,"close":"10/9/2026","owner":"Eric Durrant","dealType":""},{"stage":"Qualified","account":21,"desc":"","amount":0,"close":"","owner":"","dealType":""},{"stage":"Proposal","account":"IL-Municipality-Roscoe","desc":"PD + City Hall | Citywide CAMs","amount":61127.83,"close":"1/22/2027","owner":"Tanner Danielson","dealType":""},{"stage":"Proposal","account":"Northern Lights Services Inc","desc":"Access Control, Cameras","amount":12730.9,"close":"12/31/2026","owner":"Coleman Margetts","dealType":""},{"stage":"Proposal","account":"GFL Environmental","desc":"GFL/Waunakee, WI","amount":2559.6,"close":"10/16/2026","owner":"Andrew Azadi","dealType":""},{"stage":"Proposal","account":"Weinbrenner","desc":"Extra Bullet and License","amount":1279,"close":"8/31/2026","owner":"Quynn Allsup","dealType":""},{"stage":"Proposal","account":4,"desc":"","amount":0,"close":"","owner":"","dealType":""},{"stage":"Decision","account":"WAYLAND ACADEMY (WI)","desc":"Campus Cameras","amount":47922,"close":"10/30/2026","owner":"Christina Jones","dealType":""},{"stage":"Decision","account":"Ledgeview","desc":"Park Cameras","amount":42647.2,"close":"10/30/2026","owner":"Christina Jones","dealType":""},{"stage":"Decision","account":"Sycamore Police Department","desc":"Battery Backup","amount":433.38,"close":"11/13/2026","owner":"Tanner Danielson","dealType":""},{"stage":"Decision","account":3,"desc":"","amount":0,"close":"","owner":"","dealType":""},{"stage":"Decision","account":39,"desc":"","amount":0,"close":"","owner":"","dealType":""},{"stage":"Decision","account":39,"desc":"","amount":0,"close":"","owner":"","dealType":""}]};
+
+// stage -> win probability for weighted forecast
+const STAGE_PROB = {
+  "incubate":0.10,"validation":0.25,"qualified":0.40,
+  "proposal":0.60,"decision":0.80,"order":0.95,"order submitted":0.95
+};
+// display order + color for stage bars/chips
+const STAGE_ORDER = ["Incubate","Validation","Qualified","Proposal","Decision","Order","Order Submitted"];
+const STAGE_COLOR = {
+  "Incubate":"#7c8a9c","Validation":"#3d7eff","Qualified":"#00b4d8",
+  "Proposal":"#ffb547","Decision":"#00e08a","Order":"#00f599","Order Submitted":"#00f599"
+};
+const prob = s => STAGE_PROB[(s||"").trim().toLowerCase()] ?? 0.25;
+const stageColor = s => STAGE_COLOR[s] || "#7c8a9c";
+
+let pipe = { asOf:"", rows:[] };
+let pipeSort = {key:"amount", dir:-1};
+
+function fyMonthKey(closeStr){
+  // returns "Mon YYYY" matching the bookings row names, or null
+  const d = parseDate(closeStr); if(!d) return null;
+  return d.toLocaleString("en-US",{month:"short"}) + " " + d.getFullYear();
+}
+function parseDate(s){
+  if(s instanceof Date) return s;
+  if(typeof s!=="string") return null;
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return new Date(+m[3], +m[1]-1, +m[2]);
+  const d = new Date(s); return isNaN(d)?null:d;
+}
+
+function setPipe(data){
+  pipe = data;
+  renderPipe();
+  // feed forecast overlay back into bookings tab
+  window.PIPE_BY_MONTH = {};
+  pipe.rows.forEach(r=>{
+    const k = fyMonthKey(r.close); if(!k) return;
+    window.PIPE_BY_MONTH[k] = (window.PIPE_BY_MONTH[k]||0) + r.amount*prob(r.stage);
+  });
+  if(typeof render==="function") render();
+}
+
+function renderPipe(){
+  const total = pipe.rows.reduce((s,r)=>s+r.amount,0);
+  const weighted = pipe.rows.reduce((s,r)=>s+r.amount*prob(r.stage),0);
+  const n = pipe.rows.length;
+  $("psTotal").textContent = fmt(total);
+  $("psWeighted").textContent = fmt(weighted);
+  $("psCount").textContent = n;
+  $("psAvg").textContent = fmt(n? total/n : 0);
+  $("pipeAsOf").textContent = pipe.asOf ? ("As of "+pipe.asOf+" · "+pipe.source) : "";
+  $("kPipe").textContent = fmt(weighted);
+  $("kPipe").title = "Open weighted pipeline across all months";
+
+  // stage bars
+  const byStage = {};
+  pipe.rows.forEach(r=>{ (byStage[r.stage] = byStage[r.stage]||{raw:0,w:0,n:0}); byStage[r.stage].raw+=r.amount; byStage[r.stage].w+=r.amount*prob(r.stage); byStage[r.stage].n++; });
+  const maxRaw = Math.max(1,...Object.values(byStage).map(v=>v.raw));
+  const order = STAGE_ORDER.filter(s=>byStage[s]).concat(Object.keys(byStage).filter(s=>!STAGE_ORDER.includes(s)));
+  $("stageBars").innerHTML = order.map(s=>{
+    const v=byStage[s], pc=(v.raw/maxRaw*100).toFixed(1);
+    return `<div class="sbar">
+      <span class="sname">${s} <span style="color:var(--muted);font-weight:400;font-family:'Space Mono',monospace;font-size:11px">${v.n}</span></span>
+      <div class="sbg"><div class="sfill" style="width:${pc}%;background:${stageColor(s)}"></div></div>
+      <span class="samt"><b>${fmt(v.raw)}</b> <span>→ ${fmt(v.w)}</span></span>
+    </div>`;
+  }).join("");
+  $("probNote").innerHTML = "Weighted = amount × stage win-rate: " +
+    STAGE_ORDER.filter(s=>byStage[s]).map(s=>`<span class="fc-dot" style="background:${stageColor(s)}"></span>${s} ${Math.round(prob(s)*100)}%`).join(" &nbsp; ");
+
+  renderPipeTable();
+}
+
+function renderPipeTable(){
+  const q = ($("pipeSearch").value||"").toLowerCase();
+  let list = pipe.rows.map(r=>({...r, weighted:r.amount*prob(r.stage)}));
+  if(q) list = list.filter(r => (r.account+" "+r.owner+" "+r.stage+" "+r.desc).toLowerCase().includes(q));
+  const {key,dir} = pipeSort;
+  list.sort((a,b)=>{
+    let x=a[key], y=b[key];
+    if(key==="close"){ x=parseDate(a.close)?.getTime()||0; y=parseDate(b.close)?.getTime()||0; }
+    if(typeof x==="string"){ return dir*x.localeCompare(y); }
+    return dir*((x||0)-(y||0));
+  });
+  $("pipeBody").innerHTML = list.map(r=>{
+    const d=parseDate(r.close);
+    const cd = d? d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"}) : (r.close||"—");
+    return `<tr>
+      <td class="acct">${esc(r.account)}${r.desc?`<small>${esc(r.desc)}</small>`:""}</td>
+      <td><span class="stagechip" style="background:${stageColor(r.stage)}22;color:${stageColor(r.stage)};border:1px solid ${stageColor(r.stage)}55">${esc(r.stage)}</span></td>
+      <td style="white-space:nowrap;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">${cd}</td>
+      <td style="color:var(--muted)">${esc(r.owner||"—")}</td>
+      <td class="num" style="font-family:'Space Mono',monospace">${fmt(r.amount)}</td>
+      <td class="num" style="font-family:'Space Mono',monospace;color:var(--target)">${fmt(r.weighted)}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px">No matching deals.</td></tr>`;
+  $("pipeShowing").textContent = `${list.length} deal${list.length===1?"":"s"}` + (q?` (of ${pipe.rows.length})`:"");
+  $("pipeRaw").textContent = fmt(list.reduce((s,r)=>s+r.amount,0));
+  $("pipeWtd").textContent = fmt(list.reduce((s,r)=>s+r.weighted,0));
+}
+const esc = s => (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+/* ---- parse an uploaded Sprinter open-pipe .xlsx/.csv ---- */
+function parsePipeWorkbook(wb){
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const grid = XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:null});
+  // find header row: the row containing both "Amount" and "Stage"
+  let hr=-1, col={};
+  for(let i=0;i<grid.length;i++){
+    const r=(grid[i]||[]).map(c=>(c==null?"":String(c)).trim().toLowerCase());
+    if(r.includes("amount") && r.some(c=>c.startsWith("stage")) && r.some(c=>c.startsWith("account"))){ hr=i;
+      r.forEach((c,ci)=>{
+        if(c.startsWith("stage")) col.stage=ci;
+        else if(c.startsWith("account")) col.account=ci;
+        else if(c.includes("short description")||c==="opportunity name"||c==="opp short description") col.desc=ci;
+        else if(c==="amount") col.amount=ci;
+        else if(c.includes("close")) col.close=ci;
+        else if(c.includes("owner")) col.owner=ci;
+        else if(c.includes("deal type")) col.dealType=ci;
+      });
+      break;
+    }
+  }
+  if(hr<0) throw new Error("Couldn't find the header row (needs Stage, Account Name, Amount).");
+  let stage=null; const out=[];
+  for(let i=hr+1;i<grid.length;i++){
+    const row=grid[i]||[];
+    const sc = row[col.stage]!=null ? String(row[col.stage]).trim() : "";
+    const acct = col.account!=null ? row[col.account] : null;
+    const amtRaw = col.amount!=null ? row[col.amount] : null;
+    if(sc.toLowerCase()==="subtotal") continue;      // drop subtotal rows
+    if(sc) stage = sc;                                // forward-fill grouped stage
+    if(acct==null || String(acct).trim()==="") continue; // real deals have an account
+    const amt = typeof amtRaw==="number" ? amtRaw : parseFloat(String(amtRaw).replace(/[^0-9.\-]/g,""))||0;
+    let close = col.close!=null ? row[col.close] : "";
+    if(close instanceof Date) { /*keep*/ }
+    else if(typeof close==="number"){ // excel serial
+      const dc = XLSX.SSF ? XLSX.SSF.parse_date_code(close) : null;
+      if(dc) close = (dc.m)+"/"+(dc.d)+"/"+(dc.y);
+    }
+    out.push({
+      stage,
+      account:String(acct).trim(),
+      desc: col.desc!=null && row[col.desc]!=null ? String(row[col.desc]).trim() : "",
+      amount: amt,
+      close: close==null?"":close,
+      owner: col.owner!=null && row[col.owner]!=null ? String(row[col.owner]).trim() : "",
+      dealType: col.dealType!=null && row[col.dealType]!=null ? String(row[col.dealType]).trim() : ""
+    });
+  }
+  // try to read an "As of ..." line from the top
+  let asOf="";
+  for(let i=0;i<Math.min(hr,8);i++){
+    const line=(grid[i]||[]).map(c=>c==null?"":String(c)).join(" ");
+    const m=line.match(/as of\s+([0-9]{4}-[0-9]{2}-[0-9]{2})/i); if(m){asOf=m[1];break;}
+  }
+  return { asOf: asOf || new Date().toISOString().slice(0,10), source:(wb.SheetNames[0]||"Pipeline import"), rows: out };
+}
+
+function handleFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:"array",cellDates:true});
+      const data=parsePipeWorkbook(wb);
+      if(!data.rows.length){ toast("No deals found in that file",true); return; }
+      setPipe(data);
+      toast(`Loaded ${data.rows.length} deals · ${fmt(data.rows.reduce((s,r)=>s+r.amount,0))}`);
+    }catch(err){ toast("Parse error: "+err.message,true); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// wire pipeline UI
+(function wirePipe(){
+  const dz=$("dropzone"), fi=$("fileInput");
+  dz.addEventListener("click",()=>fi.click());
+  fi.addEventListener("change",e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+  ["dragenter","dragover"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag");}));
+  ["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag");}));
+  dz.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+  $("pipeSearch").addEventListener("input",renderPipeTable);
+  document.querySelectorAll("#pipeTable th").forEach(th=>th.addEventListener("click",()=>{
+    const k=th.dataset.sort;
+    pipeSort = pipeSort.key===k ? {key:k,dir:-pipeSort.dir} : {key:k,dir: (k==="account"||k==="owner"||k==="stage")?1:-1};
+    renderPipeTable();
+  }));
+})();
+
+// tab switching
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".tab-pane").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  $("tab-"+b.dataset.tab).classList.add("active");
+}));
+
+
 (async function init(){
   await loadData();
   setConn(); setRole();
   subscribe();
+  setPipe(SEED_PIPE);   // load this month's embedded pipeline; replaced on upload
 })();
 </script>
 </body>
