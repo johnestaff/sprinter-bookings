@@ -603,6 +603,7 @@ function parsePipeWorkbook(wb){
     if(sc) stage = sc;                                // forward-fill grouped stage
     if(acct==null || String(acct).trim()==="") continue; // real deals have an account
     const amt = typeof amtRaw==="number" ? amtRaw : parseFloat(String(amtRaw).replace(/[^0-9.\-]/g,""))||0;
+    if(!(amt>0)) continue;                            // skip $0 / blank-amount deals
     let close = col.close!=null ? row[col.close] : "";
     if(close instanceof Date) { /*keep*/ }
     else if(typeof close==="number"){ // excel serial
