@@ -244,7 +244,6 @@
     <div class="card" style="margin:14px 0">
       <div class="label" style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Pipeline by stage</div>
       <div class="stage-bars" id="stageBars"></div>
-      <div class="forecast-note" id="probNote"></div>
     </div>
 
     <div class="ptable-wrap">
@@ -260,14 +259,13 @@
             <th data-sort="close">Close</th>
             <th data-sort="owner">Owner</th>
             <th data-sort="amount" class="num">Amount</th>
-            <th data-sort="weighted" class="num">Weighted</th>
           </tr></thead>
           <tbody id="pipeBody"></tbody>
         </table>
       </div>
       <div class="pipe-foot">
         <span id="pipeShowing">0 deals</span>
-        <span>Raw <b id="pipeRaw">$0</b> &nbsp;·&nbsp; Weighted <b id="pipeWtd">$0</b></span>
+        <span>Total <b id="pipeRaw">$0</b></span>
       </div>
     </div>
 
@@ -327,7 +325,7 @@ function buildRows(){
     row.innerHTML = `
       <div class="mname">${m.name}${m.ramp?'<span class="tag">RAMP</span>':''}<span class="tag neg" id="negtag${i}" style="display:none">NEG</span><small>Mo ${i+1}</small></div>
       <div class="track ${mode}">
-        <div class="barbg" id="bg${i}"><div class="fill" id="fill${i}"></div><div class="fcmark" id="fc${i}" style="display:none;position:absolute;top:0;bottom:0;width:3px;background:var(--target);box-shadow:0 0 6px var(--target)"></div></div>
+        <div class="barbg" id="bg${i}"><div class="fill" id="fill${i}"></div></div>
         <input type="range" id="sl${i}" min="${mode==='actual'?SLIDER_MIN:0}" max="${SLIDER_MAX}" step="${STEP}"
           class="${mode==='target'?'t':''}" value="${mode==='actual'?m.actual:m.target}" ${canEdit?'':'disabled'}>
       </div>
@@ -358,19 +356,9 @@ function updateRow(i){
     $("big"+i).className="big"+(neg?" neg-txt":"");
     const col=neg?'var(--danger)':(pct>=100?'var(--accent)':'var(--muted)');
     $("small"+i).innerHTML=`of ${fmt(m.target)} · <span style="color:${col}">${pct.toFixed(0)}%</span>`;
-    // weighted-pipeline forecast marker (actuals mode only)
-    const fc=$("fc"+i), pw=(window.PIPE_BY_MONTH||{})[m.name]||0;
-    if(fc){
-      if(pw>0 && m.target>0){
-        const projPct=Math.min(100,(pw/m.target)*100);
-        fc.style.left=`calc(${projPct}% - 1px)`; fc.style.display="block";
-        fc.title=`Weighted pipeline closing ${m.name}: ${fmt(pw)} (${projPct.toFixed(0)}% of target)`;
-      } else fc.style.display="none";
-    }
   } else {
     fill.classList.remove("neg"); bg.classList.remove("negwrap");
     if(tag) tag.style.display="none";
-    const fc=$("fc"+i); if(fc) fc.style.display="none";
     fill.style.width=Math.min(100,m.target/SLIDER_MAX*100)+"%";
     $("big"+i).textContent=fmt(m.target); $("big"+i).className="big";
     $("small"+i).textContent="target";
@@ -500,30 +488,19 @@ function setPipe(data){
   data.rows = (data.rows||[]).filter(r=>r && r.amount>0); // never show $0 deals
   pipe = data;
   renderPipe();
-  // feed forecast overlay back into bookings tab
-  window.PIPE_BY_MONTH = {};
-  pipe.rows.forEach(r=>{
-    const k = fyMonthKey(r.close); if(!k) return;
-    window.PIPE_BY_MONTH[k] = (window.PIPE_BY_MONTH[k]||0) + r.amount*prob(r.stage);
-  });
-  if(typeof render==="function") render();
 }
 
 function renderPipe(){
   const total = pipe.rows.reduce((s,r)=>s+r.amount,0);
-  const weighted = pipe.rows.reduce((s,r)=>s+r.amount*prob(r.stage),0);
   const n = pipe.rows.length;
   $("psTotal").textContent = fmt(total);
-  $("psWeighted").textContent = fmt(weighted);
   $("psCount").textContent = n;
   $("psAvg").textContent = fmt(n? total/n : 0);
   $("pipeAsOf").textContent = pipe.asOf ? ("As of "+pipe.asOf+" · "+pipe.source) : "";
-  $("kPipe").textContent = fmt(weighted);
-  $("kPipe").title = "Open weighted pipeline across all months";
 
   // stage bars
   const byStage = {};
-  pipe.rows.forEach(r=>{ (byStage[r.stage] = byStage[r.stage]||{raw:0,w:0,n:0}); byStage[r.stage].raw+=r.amount; byStage[r.stage].w+=r.amount*prob(r.stage); byStage[r.stage].n++; });
+  pipe.rows.forEach(r=>{ (byStage[r.stage] = byStage[r.stage]||{raw:0,n:0}); byStage[r.stage].raw+=r.amount; byStage[r.stage].n++; });
   const maxRaw = Math.max(1,...Object.values(byStage).map(v=>v.raw));
   const order = STAGE_ORDER.filter(s=>byStage[s]).concat(Object.keys(byStage).filter(s=>!STAGE_ORDER.includes(s)));
   $("stageBars").innerHTML = order.map(s=>{
@@ -531,18 +508,16 @@ function renderPipe(){
     return `<div class="sbar">
       <span class="sname">${s} <span style="color:var(--muted);font-weight:400;font-family:'Space Mono',monospace;font-size:11px">${v.n}</span></span>
       <div class="sbg"><div class="sfill" style="width:${pc}%;background:${stageColor(s)}"></div></div>
-      <span class="samt"><b>${fmt(v.raw)}</b> <span>→ ${fmt(v.w)}</span></span>
+      <span class="samt"><b>${fmt(v.raw)}</b></span>
     </div>`;
   }).join("");
-  $("probNote").innerHTML = "Weighted = amount × stage win-rate: " +
-    STAGE_ORDER.filter(s=>byStage[s]).map(s=>`<span class="fc-dot" style="background:${stageColor(s)}"></span>${s} ${Math.round(prob(s)*100)}%`).join(" &nbsp; ");
 
   renderPipeTable();
 }
 
 function renderPipeTable(){
   const q = ($("pipeSearch").value||"").toLowerCase();
-  let list = pipe.rows.map(r=>({...r, weighted:r.amount*prob(r.stage)}));
+  let list = pipe.rows.slice();
   if(q) list = list.filter(r => (r.account+" "+r.owner+" "+r.stage+" "+r.desc).toLowerCase().includes(q));
   const {key,dir} = pipeSort;
   list.sort((a,b)=>{
@@ -560,12 +535,10 @@ function renderPipeTable(){
       <td style="white-space:nowrap;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">${cd}</td>
       <td style="color:var(--muted)">${esc(r.owner||"—")}</td>
       <td class="num" style="font-family:'Space Mono',monospace">${fmt(r.amount)}</td>
-      <td class="num" style="font-family:'Space Mono',monospace;color:var(--target)">${fmt(r.weighted)}</td>
     </tr>`;
-  }).join("") || `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:26px">No matching deals.</td></tr>`;
+  }).join("") || `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:26px">No matching deals.</td></tr>`;
   $("pipeShowing").textContent = `${list.length} deal${list.length===1?"":"s"}` + (q?` (of ${pipe.rows.length})`:"");
   $("pipeRaw").textContent = fmt(list.reduce((s,r)=>s+r.amount,0));
-  $("pipeWtd").textContent = fmt(list.reduce((s,r)=>s+r.weighted,0));
 }
 const esc = s => (s==null?"":String(s)).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 
